@@ -136,7 +136,7 @@
 
     <build>
         <!--        <finalName>${project.artifactId}</finalName>-->
-        <finalName>skylerwebdev-starthere</finalName>
+        <finalName>skylerwebdev-sprintbooks</finalName>
 
         <plugins>
             <plugin>
