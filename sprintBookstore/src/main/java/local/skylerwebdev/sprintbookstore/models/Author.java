@@ -1,5 +1,6 @@
 package local.skylerwebdev.sprintbookstore.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -11,7 +12,7 @@ import java.util.List;
 @ApiModel(value = "Author", description = "Author Entity")
 @Entity
 @Table(name = "author")
-public class Author
+public class Author extends Auditable
 {
     @ApiModelProperty(name = "authorid", value = "Primanry Key for Author", required = true, example = "1")
     @Id
@@ -24,25 +25,20 @@ public class Author
     @ApiModelProperty(name = "lname", value = "Last Name of Author", required = false, example = "Smith")
     private String lname;
 
-    @OneToMany(mappedBy = "author",
-    cascade = CascadeType.ALL,
-    orphanRemoval = true)
-    @JsonIgnoreProperties("author")
-    private List<Wrote> authorWrote = new ArrayList<>();
+    @ManyToMany(mappedBy = "authors", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("authors")
+//    @JsonIgnore
+    private List<Book> books = new ArrayList<>();
 
     public Author()
     {
     }
 
-    public Author(String fname, String lname, List<Wrote> authorWrote)
+    public Author(String fname, String lname)
     {
         this.fname = fname;
         this.lname = lname;
-        for (Wrote w : authorWrote)
-        {
-            w.setAuthor(this);
-        }
-        this.authorWrote = authorWrote;
+
     }
 
     public long getAuthorid()
@@ -75,13 +71,14 @@ public class Author
         this.lname = lname;
     }
 
-    public List<Wrote> getAuthorWrote()
+    public List<Book> getBooks()
     {
-        return authorWrote;
+        return books;
     }
 
-    public void setAuthorWrote(List<Wrote> authorWrote)
+    public void setBooks(List<Book> books)
     {
-        this.authorWrote = authorWrote;
+        this.books = books;
     }
+
 }

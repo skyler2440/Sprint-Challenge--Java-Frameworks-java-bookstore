@@ -1,10 +1,9 @@
 package local.skylerwebdev.sprintbookstore.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import org.hibernate.engine.internal.Cascade;
-import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -13,7 +12,7 @@ import java.util.List;
 @ApiModel(value = "Book", description = "Book Entity")
 @Entity
 @Table(name = "book")
-public class Book
+public class Book extends Auditable
 {
     @ApiModelProperty(name = "bookid", value = "Primary Key for Book", required = true, example = "false")
     @Id
@@ -28,33 +27,27 @@ public class Book
 
     @ApiModelProperty(name = "copy", value = "Copyright year of Book", required = false, example = "2010")
     @Column(nullable = true)
-    private long copy;
+    private Long copy;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "sectionid", referencedColumnName = "sectionid")
-    private Section section;
-
-    @OneToMany(mappedBy = "book",
-               cascade = CascadeType.ALL,
-               orphanRemoval = true)
-    @JsonIgnoreProperties("book")
-    private List<Wrote> authorWrote = new ArrayList<>();
-
+    @ManyToMany(cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE,
+    })
+    @JoinTable(name="wrote",
+    joinColumns = @JoinColumn(name = "bookid"),
+    inverseJoinColumns = @JoinColumn(name = "authorid"))
+    @JsonIgnoreProperties("books")
+//    @JsonIgnore
+    private List<Author> authors = new ArrayList<>();
     public Book()
     {
     }
 
-    public Book(String title, long isbn, long copy, Section section, List<Wrote> authorWrote)
+    public Book(String title, long isbn, Long copy)
     {
         this.title = title;
         this.isbn = isbn;
         this.copy = copy;
-        this.section = section;
-        for (Wrote w : authorWrote)
-        {
-            w.setBook(this);
-        }
-        this.authorWrote = authorWrote;
     }
 
     public long getBookid()
@@ -92,28 +85,18 @@ public class Book
         return copy;
     }
 
-    public void setCopy(long copy)
+    public void setCopy(Long copy)
     {
         this.copy = copy;
     }
 
-    public Section getSection()
+    public List<Author> getAuthors()
     {
-        return section;
+        return authors;
     }
 
-    public void setSection(Section section)
+    public void setAuthors(List<Author> authors)
     {
-        this.section = section;
-    }
-
-    public List<Wrote> getAuthorWrote()
-    {
-        return authorWrote;
-    }
-
-    public void setAuthorWrote(List<Wrote> authorWrote)
-    {
-        this.authorWrote = authorWrote;
+        this.authors = authors;
     }
 }
